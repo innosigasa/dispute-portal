@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  # ── Backend ────────────────────────────────────────────────────────────────
+  backend:
+    name: Backend — Build & Test (.NET 10)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+          dotnet-quality: "preview"
+
+      - name: Restore dependencies
+        run: dotnet restore DisputePortal.slnx
+
+      - name: Build (Release)
+        run: dotnet build DisputePortal.slnx --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: >
+          dotnet test DisputePortal.Tests/DisputePortal.Tests.csproj
+          --configuration Release
+          --no-build
+          --logger "console;verbosity=normal"
+          --collect:"XPlat Code Coverage"
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-coverage
+          path: "**/coverage.cobertura.xml"
+          retention-days: 7
+
+  # ── Frontend ───────────────────────────────────────────────────────────────
+  frontend:
+    name: Frontend — Type-check & Build (Node 20)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: dispute-portal-ui
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: dispute-portal-ui/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Production build
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dispute-portal-ui/dist/
+          retention-days: 7
+
+  # ── Docker build smoke-test ─────────────────────────────────────────────────
+  docker:
+    name: Docker — Compose build smoke-test
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create .env from example
+        run: cp .env.example .env
+
+      - name: Build all Docker images
+        run: docker compose build --parallel

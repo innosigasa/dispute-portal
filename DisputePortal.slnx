@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="DisputePortal.Api/DisputePortal.Api.csproj" />
+  <Project Path="DisputePortal.Application/DisputePortal.Application.csproj" />
+  <Project Path="DisputePortal.Persistence/DisputePortal.Persistence.csproj" />
+  <Project Path="DisputePortal.Tests/DisputePortal.Tests.csproj" />
+</Solution>
