@@ -4,7 +4,7 @@ import Chip from '@mui/joy/Chip'
 import Option from '@mui/joy/Option'
 import Select from '@mui/joy/Select'
 import Typography from '@mui/joy/Typography'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { ColDef, IDatasource, IGetRowsParams } from 'ag-grid-community'
 import { GridTable, type GridTableHandle } from '../../../components/GridTable'
@@ -18,24 +18,18 @@ import type { BankAccount } from '../../accounts/models/account.model'
 export function TransactionsPage() {
   const gridRef = useRef<GridTableHandle>(null)
   const searchRef = useRef('')
-  const accountIdRef = useRef<string | undefined>(undefined)
+  const [searchParams] = useSearchParams()
+  const initialAccountId = searchParams.get('accountId') ?? undefined
+  const accountIdRef = useRef<string | undefined>(initialAccountId)
   const [disputeTarget, setDisputeTarget] = useState<TransactionListItem | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [accounts, setAccounts] = useState<BankAccount[]>([])
-  const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(undefined)
-  const [searchParams] = useSearchParams()
+  const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(initialAccountId)
 
   // Load accounts for the filter dropdown
   useEffect(() => {
     getMyAccounts().then(r => { if (r.isSuccessful && r.data) setAccounts(r.data) })
   }, [])
-
-  // Pre-select account from URL param (e.g. coming from dashboard card)
-  useEffect(() => {
-    const urlAccountId = searchParams.get('accountId') ?? undefined
-    setSelectedAccountId(urlAccountId)
-    accountIdRef.current = urlAccountId
-  }, [searchParams])
 
   const columnDefs: ColDef<TransactionListItem>[] = [
     { field: 'transactionDate', headerName: 'Date', valueFormatter: (p) => formatDate(p.value), sortable: true, flex: 1 },
@@ -71,7 +65,7 @@ export function TransactionsPage() {
     },
   ]
 
-  const datasource: IDatasource = {
+  const datasource = useMemo<IDatasource>(() => ({
     getRows: async (params: IGetRowsParams) => {
       const { startRow, endRow, sortModel } = params
       const pageSize = endRow - startRow
@@ -88,8 +82,7 @@ export function TransactionsPage() {
       if (!result.isSuccessful || !result.data) { params.failCallback(); return }
       params.successCallback(result.data.items, result.data.totalCount)
     },
-  }
-  const datasourceRef = useRef(datasource)
+  }), [])
 
   const handleSearchChange = useCallback((text: string) => {
     searchRef.current = text
@@ -126,7 +119,7 @@ export function TransactionsPage() {
         ref={gridRef}
         title="My Transactions"
         columnDefs={columnDefs}
-        datasource={datasourceRef.current}
+        datasource={datasource}
         cacheBlockSize={20}
         height={560}
         showSearch

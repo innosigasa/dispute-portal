@@ -49,7 +49,7 @@ export interface GridTableHandle {
   exportCsv: (filename?: string) => void
 }
 
-export interface GridTableProps<TData = any> {
+export interface GridTableProps<TData = object> {
   columnDefs: ColDef<TData>[]
   /** Client-side row data. Provide either this or `datasource`, not both. */
   rowData?: TData[] | null
@@ -87,7 +87,7 @@ export interface GridTableProps<TData = any> {
 
 const SEARCH_DEBOUNCE_MS = 400
 
-function GridTableInner<TData extends Record<string, any> = any>(
+function GridTableInner<TData extends object = object>(
   {
     columnDefs,
     rowData,
@@ -293,7 +293,7 @@ function GridTableInner<TData extends Record<string, any> = any>(
           theme={gridTheme}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          rowModelType={rowModelType as any}
+          rowModelType={rowModelType as 'clientSide' | 'infinite'}
           {...(isInfinite
             ? { datasource, cacheBlockSize }
             : { rowData: rowData ?? [] })}
@@ -318,7 +318,7 @@ function GridTableInner<TData extends Record<string, any> = any>(
   )
 }
 
-export const GridTable = forwardRef(GridTableInner) as <TData extends Record<string, any> = any>(
+export const GridTable = forwardRef(GridTableInner) as <TData extends object = object>(
   props: GridTableProps<TData> & { ref?: React.Ref<GridTableHandle> },
 ) => React.ReactElement
 

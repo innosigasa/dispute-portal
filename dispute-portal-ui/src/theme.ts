@@ -13,6 +13,7 @@ declare module '@mui/material/styles' {
 }
 
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const { unstable_sxConfig: muiSxConfig, ...muiTheme } = muiExtendTheme({
   cssVarPrefix: 'joy',
   colorSchemes: {

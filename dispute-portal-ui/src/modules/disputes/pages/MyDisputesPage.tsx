@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { ColDef, IDatasource, IGetRowsParams, RowClickedEvent } from 'ag-grid-community'
 import { GridTable } from '../../../components/GridTable'
@@ -20,7 +20,7 @@ export function MyDisputesPage() {
     { field: 'updatedAt', headerName: 'Last Updated', valueFormatter: (p) => formatDate(p.value), flex: 1 },
   ]
 
-  const datasourceRef = useRef<IDatasource>({
+  const datasource = useMemo<IDatasource>(() => ({
     getRows: async (params: IGetRowsParams) => {
       const { startRow, endRow } = params
       const pageSize = endRow - startRow
@@ -29,13 +29,13 @@ export function MyDisputesPage() {
       if (!result.isSuccessful || !result.data) { params.failCallback(); return }
       params.successCallback(result.data.items, result.data.totalCount)
     }
-  })
+  }), [])
 
   return (
     <GridTable<DisputeListItem>
       title="My Disputes"
       columnDefs={columnDefs}
-      datasource={datasourceRef.current}
+      datasource={datasource}
       cacheBlockSize={20}
       height={580}
       showSearch={false}

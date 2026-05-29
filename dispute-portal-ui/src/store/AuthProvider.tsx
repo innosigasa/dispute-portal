@@ -18,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(readStoredUser)
   const [accessToken, setAccessToken] = useState<string | null>(() => localStorage.getItem('accessToken'))
 
-  const login = (at: string, rt: string, _role: string) => {
+  const login = (at: string, rt: string) => {
     localStorage.setItem('accessToken', at)
     localStorage.setItem('refreshToken', rt)
     setAccessToken(at)

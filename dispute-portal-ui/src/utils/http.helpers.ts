@@ -12,7 +12,7 @@ function getAuthHeaders(): Record<string, string> {
 
 // --- Token refresh state ---
 let isRefreshing = false
-let refreshWaiters: Array<(token: string | null) => void> = []
+const refreshWaiters: Array<(token: string | null) => void> = []
 
 async function doRefresh(): Promise<string | null> {
   const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
