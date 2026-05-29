@@ -1,4 +1,3 @@
-using DisputePortal.Application.Domain.Extensions;
 using DisputePortal.Application.Domain.Models;
 using DisputePortal.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore;

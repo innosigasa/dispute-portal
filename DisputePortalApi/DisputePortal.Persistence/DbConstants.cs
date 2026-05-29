@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DisputePortal.Persistence
+﻿namespace DisputePortal.Persistence
 {
     public class DbConstants
     {

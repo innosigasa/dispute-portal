@@ -18,16 +18,17 @@ services:
 
   api:
     build:
-      context: .
-      dockerfile: DisputePortal.Api/Dockerfile
+      context: ./DisputePortalApi
+      dockerfile: DisputePortal.WebApi/Dockerfile
     restart: unless-stopped
     environment:
-      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${POSTGRES_DB:-dispute_portal};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
-      Jwt__SecretKey: ${JWT_SECRET_KEY:-change-me-to-a-32-char-secret-key!!}
-      Jwt__Issuer: ${JWT_ISSUER:-DisputePortalApi}
-      Jwt__Audience: ${JWT_AUDIENCE:-DisputePortalClients}
-      Jwt__AccessTokenExpiryMinutes: "60"
-      Jwt__RefreshTokenExpiryDays: "7"
+      ConnectionStrings__DisputePortalDb: "Host=db;Port=5432;Database=${POSTGRES_DB:-dispute_portal};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
+      JwtBearerSettings__SecretKey: ${JWT_SECRET_KEY:-change-me-to-a-32-char-secret-key!!}
+      JwtBearerSettings__Issuer: ${JWT_ISSUER:-DisputePortalApi}
+      JwtBearerSettings__Audience: ${JWT_AUDIENCE:-DisputePortalClients}
+      JwtBearerSettings__AccessTokenExpiryMinutes: "60"
+      JwtBearerSettings__RefreshTokenExpiryDays: "7"
+      PasswordHashSettings__Salt: ${PASSWORD_HASH_SALT:-change-me-salt-value!!}
       ASPNETCORE_ENVIRONMENT: Development
       Cors__AllowedOrigins__0: "http://localhost:3000"
     ports:

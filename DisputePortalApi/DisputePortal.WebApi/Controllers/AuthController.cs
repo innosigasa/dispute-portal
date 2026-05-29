@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DisputePortal.WebApi.Controllers;
 
-//[Route("api/auth")]
 public class AuthController : BaseController
 {
     private readonly IAuthService service;

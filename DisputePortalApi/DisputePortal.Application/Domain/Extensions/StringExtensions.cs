@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DisputePortal.Application.Domain.Extensions
+﻿namespace DisputePortal.Application.Domain.Extensions
 {
     public static class StringExtensions
     {

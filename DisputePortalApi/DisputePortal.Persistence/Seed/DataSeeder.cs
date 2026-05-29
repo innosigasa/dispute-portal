@@ -1,7 +1,5 @@
 using DisputePortal.Application.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
 using DisputePortal.Application.Domain.Models;
 using DisputePortal.Application.Feature.Auth.Service;
 using Microsoft.Extensions.Configuration;

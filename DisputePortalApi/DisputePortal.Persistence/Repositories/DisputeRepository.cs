@@ -44,15 +44,15 @@ public class DisputeRepository : IDisputeRepository
             .Select(d => new DisputeListItemDto(
                 d.Id, d.ReferenceNumber,
                 d.Transaction.TransactionDate, d.Transaction.Amount,
-                d.DisputeReasonId.ToString(), d.StatusId.ToString(),
+                d.DisputeReason!.Name, d.Status!.Name,
                 d.SubmittedAt, d.UpdatedAt,
                 null,
-                d.Transaction.Account.AccountTypeId.ToString(),
+                d.Transaction.Account.AccountType!.Name,
                 d.Transaction.Account.AccountNumber
             ))
             .ToListAsync(ct);
 
-        return new PagedResult<DisputeListItemDto> { Items = items, 
+        return new PagedResult<DisputeListItemDto> { Items = items,
             TotalCount = total, Page = page, PageSize = pageSize };
     }
 
@@ -62,8 +62,8 @@ public class DisputeRepository : IDisputeRepository
             .AsNoTracking()
             .Where(d => d.Id == id)
             .Select(d => new DisputeDetailDto(
-                d.Id, d.ReferenceNumber, d.DisputeReasonId.ToString(), d.Comments,
-                d.StatusId.ToString(), d.SubmittedAt, d.ResolvedAt, d.UpdatedAt,
+                d.Id, d.ReferenceNumber, d.DisputeReason!.Name, d.Comments,
+                d.Status!.Name, d.SubmittedAt, d.ResolvedAt, d.UpdatedAt,
                 new TransactionDetailDto(
                     d.Transaction.Id, d.Transaction.CustomerId, d.Transaction.TransactionDate,
                     d.Transaction.Description, d.Transaction.Amount, d.Transaction.Category.ToString(),
@@ -72,7 +72,7 @@ public class DisputeRepository : IDisputeRepository
                     new AccountInfoDto(
                         d.Transaction.AccountId,
                         d.Transaction.Account.AccountName,
-                        d.Transaction.Account.AccountTypeId.ToString(),
+                        d.Transaction.Account.AccountType!.Name,
                         d.Transaction.Account.AccountNumber
                     )
                 ),
@@ -80,13 +80,13 @@ public class DisputeRepository : IDisputeRepository
                 new AccountInfoDto(
                     d.Transaction.AccountId,
                     d.Transaction.Account.AccountName,
-                    d.Transaction.Account.AccountTypeId.ToString(),
+                    d.Transaction.Account.AccountType!.Name,
                     d.Transaction.Account.AccountNumber
                 ),
                 d.StatusHistory
                     .OrderBy(h => h.ChangedAt)
                     .Select(h => new DisputeStatusHistoryDto(
-                        h.FromStatus.ToString(), h.ToStatus.ToString(),
+                        h.FromStatus!.Name, h.ToStatus!.Name,
                         h.ChangedByRole, h.Notes, h.ChangedAt
                     ))
                     .ToList()
@@ -108,10 +108,10 @@ public class DisputeRepository : IDisputeRepository
             .Select(d => new DisputeListItemDto(
                 d.Id, d.ReferenceNumber,
                 d.Transaction.TransactionDate, d.Transaction.Amount,
-                d.DisputeReasonId.ToString(), d.StatusId.ToString(),
+                d.DisputeReason!.Name, d.Status!.Name,
                 d.SubmittedAt, d.UpdatedAt,
                 d.Customer.FullName,
-                d.Transaction.Account.AccountTypeId.ToString(),
+                d.Transaction.Account.AccountType!.Name,
                 d.Transaction.Account.AccountNumber
             ))
             .ToListAsync(ct);

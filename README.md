@@ -102,7 +102,7 @@ Everything — database, API, and frontend — runs in containers. No local tool
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/<your-username>/dispute-portal.git
+git clone https://github.com/innosigasa/dispute-portal.git
 cd dispute-portal
 ```
 
@@ -157,12 +157,12 @@ PostgreSQL will be available at `localhost:5432`.
 
 **2. Configure the API**
 
-Open [DisputePortal.Api/appsettings.Development.json](DisputePortal.Api/appsettings.Development.json) and verify (or update) the connection string:
+Open [DisputePortalApi/DisputePortal.WebApi/appsettings.Development.json](DisputePortalApi/DisputePortal.WebApi/appsettings.Development.json) and verify (or update) the connection string:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=dispute_portal;Username=postgres;Password=postgres"
+    "DisputePortalDb": "Host=localhost;Port=5432;Database=dispute_portal;Username=postgres;Password=postgres"
   }
 }
 ```
@@ -172,7 +172,7 @@ If you changed the database credentials in `.env`, update this connection string
 **3. Run the API**
 
 ```bash
-cd DisputePortal.Api
+cd DisputePortalApi/DisputePortal.WebApi
 dotnet run
 ```
 
@@ -211,12 +211,12 @@ CREATE DATABASE dispute_portal;
 
 **2. Set the connection string**
 
-Edit [DisputePortal.Api/appsettings.Development.json](DisputePortal.Api/appsettings.Development.json):
+Edit [DisputePortalApi/DisputePortal.WebApi/appsettings.Development.json](DisputePortalApi/DisputePortal.WebApi/appsettings.Development.json):
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=dispute_portal;Username=<your-pg-user>;Password=<your-pg-password>"
+    "DisputePortalDb": "Host=localhost;Port=5432;Database=dispute_portal;Username=<your-pg-user>;Password=<your-pg-password>"
   }
 }
 ```
@@ -226,14 +226,14 @@ Edit [DisputePortal.Api/appsettings.Development.json](DisputePortal.Api/appsetti
 Migrations run automatically on startup, but you can also apply them manually:
 
 ```bash
-cd DisputePortal.Api
+cd DisputePortalApi/DisputePortal.WebApi
 dotnet ef database update
 ```
 
 **4. Run the API**
 
 ```bash
-cd DisputePortal.Api
+cd DisputePortalApi/DisputePortal.WebApi
 dotnet run
 ```
 
@@ -261,11 +261,12 @@ The `.env` file (copied from `.env.example`) controls Docker Compose configurati
 | `JWT_AUDIENCE` | `DisputePortalClients` | JWT audience claim |
 | `JWT_ACCESS_TOKEN_EXPIRY_MINUTES` | `60` | Access token lifetime |
 | `JWT_REFRESH_TOKEN_EXPIRY_DAYS` | `7` | Refresh token lifetime |
-| `VITE_API_BASE_URL` | `/api` | API base URL baked into the UI at build time. Defaults to `/api` (proxied by nginx in Docker). Set to `https://localhost:7062/api` for local dev with `npm run dev`. |
+| `PASSWORD_HASH_SALT` | _(random string)_ | Salt for password hashing — **change in production** |
+| `VITE_API_BASE_URL` | `/api` | API base URL baked into the UI at build time. Defaults to `/api` (proxied by nginx in Docker). Set to `http://localhost:5000/api` for local dev with `npm run dev`. |
 
 > **Security note:** Never commit a `.env` file with real secrets. The `.env.example` file is safe to commit — it contains only placeholder values.
 
-For the API when running locally (Options B & C), JWT settings are read from `DisputePortal.Api/appsettings.Development.json` or overridden via environment variables using the `Jwt__SecretKey` double-underscore convention.
+For the API when running locally (Options B & C), JWT and password hash settings are read from `DisputePortalApi/DisputePortal.WebApi/appsettings.json` or overridden via environment variables using the `JwtBearerSettings__SecretKey` / `PasswordHashSettings__Salt` double-underscore convention.
 
 ---
 
@@ -303,19 +304,19 @@ The test suite covers the Application layer (business logic, validators, state m
 
 ```bash
 # From the repository root
-dotnet test DisputePortal.Tests/DisputePortal.Tests.csproj
+dotnet test DisputePortalApi/Tests/DisputePortal.UnitTests/DisputePortal.UnitTests.csproj
 
 # With detailed output
-dotnet test DisputePortal.Tests/DisputePortal.Tests.csproj --logger "console;verbosity=detailed"
+dotnet test DisputePortalApi/Tests/DisputePortal.UnitTests/DisputePortal.UnitTests.csproj --logger "console;verbosity=detailed"
 
 # With code coverage report
-dotnet test DisputePortal.Tests/DisputePortal.Tests.csproj --collect:"XPlat Code Coverage"
+dotnet test DisputePortalApi/Tests/DisputePortal.UnitTests/DisputePortal.UnitTests.csproj --collect:"XPlat Code Coverage"
 ```
 
 Or run all projects in the solution:
 
 ```bash
-dotnet test DisputePortal.slnx
+dotnet test DisputePortalApi/DisputePortal.slnx
 ```
 
 ### Frontend type check
@@ -348,48 +349,56 @@ All endpoints except `/api/auth/login` and `/api/auth/refresh` require a `Bearer
 
 ```
 dispute-portal/
-├── DisputePortal.Api/           # ASP.NET Core 10 Web API
-│   ├── Controllers/             # Thin controllers — validation + one service call
-│   ├── Services/                # Auth, JWT, Notification, Lookup services
-│   ├── Middleware/              # Global exception handler
-│   ├── Dockerfile               # Multi-stage Docker build
-│   └── Program.cs               # DI wiring, JWT, Swagger, CORS, seed trigger
-│
-├── DisputePortal.Application/   # Business logic (no infrastructure dependencies)
-│   ├── Domain/
-│   │   ├── Entities/            # Customer, Transaction, Dispute, AppUser, …
-│   │   ├── Enums/               # DisputeStatus, DisputeReason, …
-│   │   └── StateMachine/        # DisputeStatusTransition.EnsureValid()
-│   ├── DTOs/                    # Request/response contracts
-│   ├── Interfaces/              # IDisputeService, ITransactionRepository, …
-│   └── Validators/              # FluentValidation validators
-│
-├── DisputePortal.Persistence/   # Data access
-│   ├── DbContext/               # AppDbContext
-│   ├── Configurations/          # IEntityTypeConfiguration per entity
-│   ├── Migrations/              # EF Core migration files
-│   ├── Repositories/            # Projection-based repository implementations
-│   └── Seed/                    # DataSeeder (dev environment only)
-│
-├── DisputePortal.Tests/         # xUnit unit tests
-│   ├── Services/                # Service-layer tests
-│   ├── Validators/              # Validator tests
-│   └── StateMachine/            # State machine transition tests
+├── DisputePortalApi/
+│   ├── DisputePortal.WebApi/    # ASP.NET Core 10 Web API
+│   │   ├── Controllers/         # Thin controllers — validation + one service call
+│   │   ├── Middleware/          # Global exception handler
+│   │   ├── Dockerfile           # Multi-stage Docker build
+│   │   └── Program.cs           # DI wiring, JWT, Swagger, CORS, seed trigger
+│   │
+│   ├── DisputePortal.Application/  # Business logic (no infrastructure dependencies)
+│   │   ├── Domain/
+│   │   │   ├── Models/          # Customer, Transaction, Dispute, AppUser, …
+│   │   │   ├── Enums/           # DisputeStatus, DisputeReason, …
+│   │   │   ├── Requests/        # Shared request types
+│   │   │   └── StateMachine/    # DisputeStatusTransition.EnsureValid()
+│   │   ├── Feature/             # Vertical feature slices
+│   │   │   └── <Feature>/       # Auth, Dispute, Transaction, Account, …
+│   │   │       ├── Service/     # Service interface + implementation
+│   │   │       ├── Requests/    # Request DTOs
+│   │   │       ├── Results/     # Response DTOs
+│   │   │       ├── Validators/  # FluentValidation validators
+│   │   │       └── Persistence/ # Repository interface
+│   │   └── ApplicationModule.cs # DI registration
+│   │
+│   ├── DisputePortal.Persistence/  # Data access
+│   │   ├── DisputePortalDbContext.cs  # EF Core DbContext
+│   │   ├── Configurations/      # IEntityTypeConfiguration per entity
+│   │   ├── Migrations/          # EF Core migration files
+│   │   ├── Repositories/        # Projection-based repository implementations
+│   │   ├── Seed/                # DataSeeder (dev environment only)
+│   │   └── PersistenceModule.cs # DI registration
+│   │
+│   ├── Tests/
+│   │   └── DisputePortal.UnitTests/  # xUnit unit tests
+│   │       ├── StateMachineTests.cs  # State machine transition tests
+│   │       ├── ValidatorTests.cs     # Validator tests
+│   │       └── ReferenceNumberGeneratorTests.cs
+│   │
+│   └── DisputePortal.slnx
 │
 ├── dispute-portal-ui/           # React 19 + TypeScript (Vite)
 │   ├── src/
 │   │   ├── modules/             # Feature modules (auth, transactions, disputes, agent, dashboard, accounts)
 │   │   │   └── <feature>/
 │   │   │       ├── pages/       # Route-level page components
-│   │   │       ├── services/    # API calls via httpHelper
-│   │   │       ├── models/      # TypeScript interfaces
-│   │   │       └── requests/    # Request shape types
+│   │   │       └── services/    # API calls via Axios client
 │   │   ├── components/          # Shared UI components (GridTable, StatusBadge, …)
 │   │   ├── layouts/             # AppLayout (authenticated shell), AuthLayout
 │   │   ├── store/               # Auth context — AuthProvider, useAuth hook
-│   │   ├── domain/              # Shared domain types (RequestResult<T>)
-│   │   ├── utils/               # httpHelper (fetch wrapper + JWT refresh), formatters
-│   │   └── api/                 # client.ts — legacy Axios stub (unused)
+│   │   ├── domain/              # Shared domain types
+│   │   ├── utils/               # formatters (currency, date)
+│   │   └── api/                 # client.ts — Axios instance with JWT interceptors
 │   ├── Dockerfile               # Vite build → Nginx
 │   ├── nginx.conf               # SPA routing + /api reverse-proxy
 │   └── vite.config.ts           # Dev server on :3000; proxies /api → :5000

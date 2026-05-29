@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DisputePortal.WebApi.Controllers;
 
-//[Route("api/accounts")]
 [Authorize(Policy = "CustomerOnly")]
 public class AccountsController : BaseController
 {

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DisputePortal.WebApi.Controllers;
 
-//[Route("api/agent/disputes")]
+[Route("api/agent/disputes")]
 [Authorize(Policy = "AgentOnly")]
 public class AgentController : BaseController
 {

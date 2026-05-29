@@ -1,10 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using Microsoft.VisualBasic;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DisputePortal.Persistence
 {

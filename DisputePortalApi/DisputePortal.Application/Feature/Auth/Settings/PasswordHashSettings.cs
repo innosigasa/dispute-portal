@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DisputePortal.Application.Feature.Auth.Settings
+﻿namespace DisputePortal.Application.Feature.Auth.Settings
 {
     public class PasswordHashSettings
     {

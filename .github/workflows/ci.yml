@@ -7,7 +7,6 @@ on:
     branches: ["main", "master"]
 
 jobs:
-  # ── Backend ────────────────────────────────────────────────────────────────
   backend:
     name: Backend — Build & Test (.NET 10)
     runs-on: ubuntu-latest
@@ -23,14 +22,14 @@ jobs:
           dotnet-quality: "preview"
 
       - name: Restore dependencies
-        run: dotnet restore DisputePortal.slnx
+        run: dotnet restore DisputePortalApi/DisputePortalApi.slnx
 
       - name: Build (Release)
-        run: dotnet build DisputePortal.slnx --configuration Release --no-restore
+        run: dotnet build DisputePortalApi/DisputePortalApi.slnx --configuration Release --no-restore
 
       - name: Run unit tests
         run: >
-          dotnet test DisputePortal.Tests/DisputePortal.Tests.csproj
+          dotnet test DisputePortalApi/Tests/DisputePortal.UnitTests/DisputePortal.UnitTests.csproj
           --configuration Release
           --no-build
           --logger "console;verbosity=normal"
@@ -44,7 +43,6 @@ jobs:
           path: "**/coverage.cobertura.xml"
           retention-days: 7
 
-  # ── Frontend ───────────────────────────────────────────────────────────────
   frontend:
     name: Frontend — Type-check & Build (Node 20)
     runs-on: ubuntu-latest
@@ -83,7 +81,6 @@ jobs:
           path: dispute-portal-ui/dist/
           retention-days: 7
 
-  # ── Docker build smoke-test ─────────────────────────────────────────────────
   docker:
     name: Docker — Compose build smoke-test
     runs-on: ubuntu-latest
