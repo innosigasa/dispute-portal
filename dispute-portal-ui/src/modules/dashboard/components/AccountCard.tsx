@@ -17,10 +17,24 @@ const accountTypeConfig: Record<AccountType, {
   color: 'primary' | 'success' | 'warning' | 'neutral'
   bg: string
 }> = {
-  Savings: { icon: <SavingsIcon />,              color: 'success',  bg: 'linear-gradient(135deg, #1B998B 0%, #0d6b60 100%)' },
-  Cheque:  { icon: <AccountBalanceIcon />,       color: 'primary',  bg: 'linear-gradient(135deg, #0A2463 0%, #1e4491 100%)' },
-  Current: { icon: <AccountBalanceWalletIcon />, color: 'warning',  bg: 'linear-gradient(135deg, #e07b00 0%, #b85e00 100%)' },
-  Credit:  { icon: <CreditCardIcon />,           color: 'neutral',  bg: 'linear-gradient(135deg, #4e5f74 0%, #364455 100%)' },
+  Savings:         { icon: <SavingsIcon />,              color: 'success', bg: 'linear-gradient(135deg, #1B998B 0%, #0d6b60 100%)' },
+  Cheque:          { icon: <AccountBalanceIcon />,       color: 'primary', bg: 'linear-gradient(135deg, #0A2463 0%, #1e4491 100%)' },
+  Current:         { icon: <AccountBalanceWalletIcon />, color: 'warning', bg: 'linear-gradient(135deg, #e07b00 0%, #b85e00 100%)' },
+  Credit:          { icon: <CreditCardIcon />,           color: 'neutral', bg: 'linear-gradient(135deg, #4e5f74 0%, #364455 100%)' },
+  Business:        { icon: <AccountBalanceIcon />,       color: 'primary', bg: 'linear-gradient(135deg, #16425B 0%, #1f6f8b 100%)' },
+  FixedDeposit:    { icon: <SavingsIcon />,              color: 'success', bg: 'linear-gradient(135deg, #2A9D8F 0%, #1f776d 100%)' },
+  Investment:      { icon: <SavingsIcon />,              color: 'success', bg: 'linear-gradient(135deg, #3A7D44 0%, #27562f 100%)' },
+  Loan:            { icon: <CreditCardIcon />,           color: 'warning', bg: 'linear-gradient(135deg, #C97A00 0%, #8f5800 100%)' },
+  Joint:           { icon: <AccountBalanceWalletIcon />, color: 'primary', bg: 'linear-gradient(135deg, #5C677D 0%, #3f4858 100%)' },
+  ForeignCurrency: { icon: <AccountBalanceWalletIcon />, color: 'warning', bg: 'linear-gradient(135deg, #0081A7 0%, #005f7a 100%)' },
+  Student:         { icon: <AccountBalanceWalletIcon />, color: 'success', bg: 'linear-gradient(135deg, #52B788 0%, #2d6a4f 100%)' },
+  Retirement:      { icon: <SavingsIcon />,              color: 'neutral', bg: 'linear-gradient(135deg, #6C757D 0%, #495057 100%)' },
+  MoneyMarket:     { icon: <SavingsIcon />,              color: 'success', bg: 'linear-gradient(135deg, #40916C 0%, #2d6a4f 100%)' },
+  Islamic:         { icon: <AccountBalanceIcon />,       color: 'primary', bg: 'linear-gradient(135deg, #006D77 0%, #004f56 100%)' },
+  Trust:           { icon: <AccountBalanceIcon />,       color: 'neutral', bg: 'linear-gradient(135deg, #7D8597 0%, #495057 100%)' },
+  DigitalWallet:   { icon: <AccountBalanceWalletIcon />, color: 'warning', bg: 'linear-gradient(135deg, #9C6644 0%, #6b442d 100%)' },
+  Corporate:       { icon: <AccountBalanceIcon />,       color: 'primary', bg: 'linear-gradient(135deg, #1D3557 0%, #16324a 100%)' },
+  Offshore:        { icon: <AccountBalanceWalletIcon />, color: 'neutral', bg: 'linear-gradient(135deg, #3D5A80 0%, #293f59 100%)' },
 }
 
 function maskAccountNumber(num: string) {

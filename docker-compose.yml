@@ -40,6 +40,8 @@ services:
     build:
       context: ./dispute-portal-ui
       dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
     restart: unless-stopped
     ports:
       - "3000:80"

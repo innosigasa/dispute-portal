@@ -71,9 +71,9 @@ No backward transitions. No skipping steps. Enforced by `DisputeStatusTransition
 | API Docs | Swashbuckle 7.x (Swagger UI) |
 | Frontend | React 19 + TypeScript (Vite) |
 | UI Library | MUI Joy UI |
-| Data Tables | AG Grid Community (server-side row model) |
+| Data Tables | AG Grid Community (infinite scroll & client-side row models) |
 | Forms | Formik + Yup |
-| HTTP Client | Axios with JWT interceptors |
+| HTTP Client | native `fetch` API with JWT interceptors (`httpHelper`) |
 | Routing | React Router v7 |
 | Database | PostgreSQL 16 |
 | Infrastructure | Docker + Docker Compose |
@@ -117,7 +117,7 @@ The defaults in `.env.example` work out of the box for a local Docker run. If yo
 **3. Build and start all services**
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 On first run this will:
@@ -137,8 +137,8 @@ On first run this will:
 **4. Stop the stack**
 
 ```bash
-docker-compose down          # stop containers, keep data volume
-docker-compose down -v       # stop containers AND delete database volume
+docker compose down          # stop containers, keep data volume
+docker compose down -v       # stop containers AND delete database volume
 ```
 
 ---
@@ -150,7 +150,7 @@ This is the recommended setup for **active development**. The database runs in D
 **1. Start only the database**
 
 ```bash
-docker-compose up db
+docker compose up db
 ```
 
 PostgreSQL will be available at `localhost:5432`.
@@ -191,12 +191,9 @@ npm install
 npm run dev
 ```
 
-The frontend starts at **http://localhost:5173** (Vite default).
+The frontend starts at **http://localhost:3000** (configured in `dispute-portal-ui/vite.config.ts`).
 
-> If the API runs on a different port, update `VITE_API_BASE_URL` in `dispute-portal-ui/.env.local`:
-> ```
-> VITE_API_BASE_URL=http://localhost:5000
-> ```
+`vite.config.ts` proxies all `/api` requests to `http://localhost:5000`, so no extra environment variables are needed as long as the API is on its default port. If you change the API port, update the proxy target in `vite.config.ts`.
 
 ---
 
@@ -264,6 +261,7 @@ The `.env` file (copied from `.env.example`) controls Docker Compose configurati
 | `JWT_AUDIENCE` | `DisputePortalClients` | JWT audience claim |
 | `JWT_ACCESS_TOKEN_EXPIRY_MINUTES` | `60` | Access token lifetime |
 | `JWT_REFRESH_TOKEN_EXPIRY_DAYS` | `7` | Refresh token lifetime |
+| `VITE_API_BASE_URL` | `/api` | API base URL baked into the UI at build time. Defaults to `/api` (proxied by nginx in Docker). Set to `https://localhost:7062/api` for local dev with `npm run dev`. |
 
 > **Security note:** Never commit a `.env` file with real secrets. The `.env.example` file is safe to commit — it contains only placeholder values.
 
@@ -380,13 +378,21 @@ dispute-portal/
 │
 ├── dispute-portal-ui/           # React 19 + TypeScript (Vite)
 │   ├── src/
-│   │   ├── api/                 # Axios client + typed API functions
-│   │   ├── components/          # Shared UI components
-│   │   ├── pages/               # Route-level page components
-│   │   ├── store/               # Auth context (useAuth hook)
-│   │   └── utils/               # formatCurrency, formatDate helpers
+│   │   ├── modules/             # Feature modules (auth, transactions, disputes, agent, dashboard, accounts)
+│   │   │   └── <feature>/
+│   │   │       ├── pages/       # Route-level page components
+│   │   │       ├── services/    # API calls via httpHelper
+│   │   │       ├── models/      # TypeScript interfaces
+│   │   │       └── requests/    # Request shape types
+│   │   ├── components/          # Shared UI components (GridTable, StatusBadge, …)
+│   │   ├── layouts/             # AppLayout (authenticated shell), AuthLayout
+│   │   ├── store/               # Auth context — AuthProvider, useAuth hook
+│   │   ├── domain/              # Shared domain types (RequestResult<T>)
+│   │   ├── utils/               # httpHelper (fetch wrapper + JWT refresh), formatters
+│   │   └── api/                 # client.ts — legacy Axios stub (unused)
 │   ├── Dockerfile               # Vite build → Nginx
-│   └── nginx.conf               # SPA routing config
+│   ├── nginx.conf               # SPA routing + /api reverse-proxy
+│   └── vite.config.ts           # Dev server on :3000; proxies /api → :5000
 │
 ├── docker-compose.yml           # db + api + ui services
 ├── .env.example                 # Environment variable template

@@ -17,7 +17,6 @@ import {
   type GridReadyEvent,
   type GridSizeChangedEvent,
   type IDatasource,
-  type IGetRowsParams,
   type RowClickedEvent,
   type SortChangedEvent,
   type GetRowIdParams,

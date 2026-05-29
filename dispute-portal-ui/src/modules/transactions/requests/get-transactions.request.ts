@@ -1,4 +1,5 @@
 export interface GetTransactionsRequest {
+  [key: string]: string | number | undefined
   page?: number
   pageSize?: number
   sortField?: string
